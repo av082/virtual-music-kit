@@ -34,12 +34,10 @@ function createElement() {
   hideColumn.appendChild(hideInput);
   header.appendChild(hideColumn);
 
-  // piano keys list
   const ul = document.createElement('ul');
   ul.className = 'piano-keys';
   wrapper.appendChild(ul);
 
-  // массив клавиш с их типами и символами
   const keys = [
     { type: 'white', key: 'a', editImg: 'edit-black.png' },
     { type: 'black', key: 'w', editImg: 'edit-white.png' },
@@ -126,7 +124,6 @@ let editMode = null;
 let sequenceMode = null;
 audio = new Audio(`tunes/a.wav`);
 
-// Клавиши по умолчанию
 let noteMap = {
   a: "a.wav",
   s: "s.wav",
@@ -203,7 +200,6 @@ document.addEventListener("keydown", pressedKey);
 //=================================================
 // EDIT MODE — изменение назначенной клавиши (одно input поле)
 //=================================================
-
 editBtns.forEach((btn) => {
   btn.addEventListener("mousedown", function(e) {
     e.stopPropagation();
@@ -229,13 +225,11 @@ function startKeyEdit(editBtn) {
   const onKeyDown = (e) => {
     if (!editMode) return;
 
-    // Разрешаем только A-Z / Backspace / Enter
     if (!/^[a-zA-Z]$/.test(e.key) && e.key !== "Backspace" && e.key !== "Enter") {
       e.preventDefault();
       return;
     }
 
-    // Запрещаем вводить больше одного символа
     if (editField.value.length >= 1 && e.key.length === 1) {
       editField.value = e.key;
       return;
@@ -247,7 +241,6 @@ function startKeyEdit(editBtn) {
   const onInput = () => {
     if (!editMode) return;
 
-    // Если больше одного символа, оставляем только первый. Например, если вставка.
     if (editField.value.length > 1) {
       editField.value = editField.value.slice(0, 1).toUpperCase();
     }
@@ -307,7 +300,6 @@ seqFeild.addEventListener("blur", () => {
   sequenceMode = false;
 });
 playBtn.addEventListener("click", () => {
-  // simulatePianoKey(seqFeild);
   playWithUserBlocked(() => simulatePianoKey(seqFeild));
 });
 seqFeild.addEventListener("change", cleanSeqField);
