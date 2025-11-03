@@ -89,12 +89,17 @@ function createElement() {
   sequenceInput.type = "text";
   sequenceInput.id = "seq";
   const sequenceBtn = document.createElement("button");
+  sequenceBtn.id = "play";
   sequenceBtn.textContent = "Play";
+  const resetBtn = document.createElement("button");
+  resetBtn.id = "clear"
+  resetBtn.textContent = "Clear";
   sequenceField.appendChild(sequenceLabel);
   sequenceField.appendChild(sequenceInput);
   sequenceField.appendChild(sequenceBtn);
+  sequenceField.appendChild(resetBtn);
 
-   wrapper.appendChild(sequenceField);
+  wrapper.appendChild(sequenceField);
 }
 // вызов функции для генерации интерфейса
 createElement();
@@ -126,7 +131,6 @@ let noteMap = {
   j: "j.wav",
   k: "k.wav",
   l: "l.wav",
-  q: "q.wav",
   w: "w.wav",
   e: "e.wav",
   t: "t.wav",
@@ -158,7 +162,7 @@ const handleVolume = (e) => {
 };
 const showHideKeys = () => {
   pianoKeys.forEach((key) => key.classList.toggle("hide"));
-  editBtn.forEach((btn) => btn.classList.toggle("hide"));
+  editBtns.forEach((btn) => btn.classList.toggle("hide"));
 };
 
 const pressedKey = (e) => {
@@ -208,12 +212,13 @@ editBtns.forEach((btn) => {
 function startKeyEdit(editBtn) {
   const editField = document.querySelector(".edit-field input");
   const keyToEdit = editBtn.closest(".key");
-  const oldKey = keyToEdit.dataset.key;
+  const oldKey = keyToEdit.dataset.key.toLowerCase();
   
   editField.parentElement.classList.remove("hide");
   editField.value = oldKey.toUpperCase();
   editField.focus();
   editMode = true;
+  toggleElements(true);
 
   const onKeyDown = (e) => {
     if (!editMode) return;
@@ -255,8 +260,9 @@ function startKeyEdit(editBtn) {
       return;
     }
 
-    noteMap[newKey] = noteMap[oldKey.toLowerCase()];
-    delete noteMap[oldKey.toLowerCase()];
+    console.log(newKey);
+    noteMap[newKey] = noteMap[oldKey];
+    delete noteMap[oldKey];
 
     keyToEdit.dataset.key = newKey;
     keyToEdit.querySelector("span").textContent = newKey.toUpperCase();
@@ -267,37 +273,44 @@ function startKeyEdit(editBtn) {
   function cleanup() {
     editMode = false;
     editField.parentElement.classList.add("hide");
-    editField.removeEventListener("keydown", onKeyDown);
+    document.removeEventListener("keydown", onKeyDown);
     editField.removeEventListener("input", onInput);
+    toggleElements(false);
   }
 
-  editField.addEventListener("keydown", onKeyDown);
+  document.addEventListener("keydown", onKeyDown);
   editField.addEventListener("input", onInput);
 }
 
+function toggleElements(disable=true) {
+  document.querySelectorAll(".sequence input, .sequence button")
+    .forEach(el => el.disabled = disable);
 
+  keysCheckbox.disabled = disable;
+}
 //=================================================
 // SEQUENCE PLAY — воспроизведение последовательности
 //=================================================
-
 const seqFeild = document.querySelector("#seq");
-const seqBtn = document.querySelector(".sequence button");
+const playBtn = document.querySelector("#play");
 seqFeild.addEventListener("focus", () => {
   sequenceMode = true;
 });
 seqFeild.addEventListener("blur", () => {
   sequenceMode = false;
 });
-seqBtn.addEventListener("click", () => {
-  simulatePianoKey(seqFeild);
+playBtn.addEventListener("click", () => {
+  // simulatePianoKey(seqFeild);
+  playWithUserBlocked(() => simulatePianoKey(seqFeild));
 });
+seqFeild.addEventListener("change", cleanSeqField);
 
 async function simulatePianoKey(chars) {
   const charArr = chars.value.split("");
+
   for (const keyChar of charArr) {
     const keyCode = "Key" + keyChar.toUpperCase();
 
-    // Событие нажатия
     const keyDownEvent = new KeyboardEvent("keydown", {
       code: keyCode,
       key: keyChar,
@@ -306,10 +319,8 @@ async function simulatePianoKey(chars) {
     });
     document.dispatchEvent(keyDownEvent);
 
-    // Ждём немного перед отпусканием
     await new Promise(resolve => setTimeout(resolve, 400));
 
-    // Событие отпускания
     const keyUpEvent = new KeyboardEvent("keyup", {
       code: keyCode,
       key: keyChar,
@@ -318,7 +329,51 @@ async function simulatePianoKey(chars) {
     });
     document.dispatchEvent(keyUpEvent);
 
-    // Дополнительная пауза между нотами (можно убрать или изменить)
     await new Promise(resolve => setTimeout(resolve, 50));
+  }
+}
+
+function cleanSeqField() {
+  const seqField = document.querySelector("#seq");
+  let value = seqField.value.toLowerCase();
+  value = value.replace(/[^a-z]/g, "");
+  const noteMapKeys = Object.keys(noteMap);
+  console.log("Original: ", value.length);
+  
+  let cleaned = "";
+  for (let char of value) {
+    if (noteMapKeys.includes(char)) {
+      cleaned += char;
+    }
+  }
+
+  console.log("Cleaned: ", cleaned.length);
+  if (cleaned.length > noteMapKeys.length * 2) {
+    cleaned = cleaned.slice(0, noteMapKeys.length * 2);
+  }
+
+  console.log("Shortened: ", cleaned.length);
+  seqField.value = cleaned;
+}
+
+async function playWithUserBlocked(func) {
+
+  const blockHandler = (e) => {
+    if (!e.isTrusted) return;
+
+    e.preventDefault();
+    e.stopImmediatePropagation();
+  };
+
+  const events = ["keydown", "keypress", "keyup", "mousedown", "mouseup", "click", "dblclick", "contextmenu", "wheel", "touchstart", "touchend"];
+  events.forEach(event => document.addEventListener(event, blockHandler, { capture: true, passive: false }));
+
+  toggleElements(true);
+
+  try {
+    await func();
+  } finally {
+    toggleElements(false);
+    events.forEach(event => document.removeEventListener(event, blockHandler, { capture: true, passive: false }));
   }
 }
