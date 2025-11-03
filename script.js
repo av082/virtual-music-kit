@@ -332,7 +332,7 @@ async function simulatePianoKey(chars) {
     });
     document.dispatchEvent(keyUpEvent);
 
-    await new Promise(resolve => setTimeout(resolve, 50));
+    await new Promise(resolve => setTimeout(resolve, 300));
   }
 }
 
