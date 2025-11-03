@@ -124,7 +124,10 @@ let editMode = null;
 let sequenceMode = null;
 let currentOnKeyDown = null;
 let currentOnInput = null;
-audio = new Audio(`tunes/a.wav`);
+
+// audio = new Audio(`tunes/a.wav`);
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+let noteBuffers = {};
 
 let noteMap = {
   a: "a.wav",
@@ -146,9 +149,24 @@ let noteMap = {
   m: "m.wav",
 };
 
+async function preloadNotes() {
+  for (const key in noteMap) {
+    const response = await fetch(`tunes/${noteMap[key]}`);
+    const arrayBuffer = await response.arrayBuffer();
+    noteBuffers[key] = await audioCtx.decodeAudioData(arrayBuffer);
+  }
+}
+preloadNotes();
+
 const playTune = (key) => {
-  audio.src = `tunes/${noteMap[key]}`;
-  audio.play();
+  if (!noteBuffers[key]) return;
+
+  const source = audioCtx.createBufferSource();
+  source.buffer = noteBuffers[key];
+  source.connect(audioCtx.destination);
+  source.start();
+  // audio.src = `tunes/${noteMap[key]}`;
+  // audio.play();
 };
 
 pianoKeys.forEach((key) => {
@@ -162,9 +180,7 @@ pianoKeys.forEach((key) => {
     key.addEventListener(evt, () => key.classList.remove("active"));
   });
 });
-const handleVolume = (e) => {
-  audio.volume = e.target.value;
-};
+
 const showHideKeys = () => {
   pianoKeys.forEach((key) => key.classList.toggle("hide"));
   editBtns.forEach((btn) => btn.classList.toggle("hide"));
@@ -358,7 +374,6 @@ function cleanSeqField() {
   let value = seqField.value.toLowerCase();
   value = value.replace(/[^a-z]/g, "");
   const noteMapKeys = Object.keys(noteMap);
-  console.log("Original: ", value.length);
   
   let cleaned = "";
   for (let char of value) {
@@ -367,12 +382,10 @@ function cleanSeqField() {
     }
   }
 
-  console.log("Cleaned: ", cleaned.length);
   if (cleaned.length > noteMapKeys.length * 2) {
     cleaned = cleaned.slice(0, noteMapKeys.length * 2);
   }
 
-  console.log("Shortened: ", cleaned.length);
   seqField.value = cleaned;
 }
 
