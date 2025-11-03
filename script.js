@@ -122,6 +122,8 @@ let activeKey = null;
 let allKeys = [];
 let editMode = null;
 let sequenceMode = null;
+let currentOnKeyDown = null;
+let currentOnInput = null;
 audio = new Audio(`tunes/a.wav`);
 
 let noteMap = {
@@ -207,7 +209,7 @@ editBtns.forEach((btn) => {
   });
 
   btn.addEventListener("click", (e) => {
-    startKeyEdit(btn);
+    startKeyEdit(e.target);
   });
 });
 
@@ -221,6 +223,11 @@ function startKeyEdit(editBtn) {
   editField.focus();
   editMode = true;
   toggleElements(true);
+
+  if (currentOnKeyDown) {
+    document.removeEventListener("keydown", currentOnKeyDown);
+    editField.removeEventListener("input", currentOnInput);
+  }
 
   const onKeyDown = (e) => {
     if (!editMode) return;
@@ -256,10 +263,10 @@ function startKeyEdit(editBtn) {
 
     if (!/^[a-z]$/.test(newKey) || noteMap[newKey]) {
       editField.value = "";
+      showErr();
       return;
     }
 
-    console.log(newKey);
     noteMap[newKey] = noteMap[oldKey];
     delete noteMap[oldKey];
 
@@ -275,10 +282,20 @@ function startKeyEdit(editBtn) {
     document.removeEventListener("keydown", onKeyDown);
     editField.removeEventListener("input", onInput);
     toggleElements(false);
+    currentOnKeyDown = null;
+    currentOnInput = null;
+  }
+
+  function showErr() {
+    editField.classList.add('input-error');
+    setTimeout(() => editField.classList.remove('input-error'), 1200);
   }
 
   document.addEventListener("keydown", onKeyDown);
   editField.addEventListener("input", onInput);
+
+  currentOnKeyDown = onKeyDown;
+  currentOnInput = onInput;
 }
 
 function toggleElements(disable=true) {
