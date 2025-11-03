@@ -60,7 +60,13 @@ function createElement() {
     { type: 'white', key: 'm', editImg: 'edit-black.png' },
   ];
 
-  keys.forEach(k => {
+  keys.forEach((k, index) => {
+    if (index === 5 || index === 12) {
+      const br = document.createElement('li');
+      br.className = 'break';
+      ul.appendChild(br);
+    }
+
     const li = document.createElement('li');
     li.className = `key ${k.type}`;
     li.dataset.key = k.key;
@@ -293,6 +299,7 @@ function toggleElements(disable=true) {
 //=================================================
 const seqFeild = document.querySelector("#seq");
 const playBtn = document.querySelector("#play");
+const resetBtn = document.querySelector("#clear");
 seqFeild.addEventListener("focus", () => {
   sequenceMode = true;
 });
@@ -304,6 +311,10 @@ playBtn.addEventListener("click", () => {
   playWithUserBlocked(() => simulatePianoKey(seqFeild));
 });
 seqFeild.addEventListener("change", cleanSeqField);
+
+resetBtn.addEventListener("click", () => {
+  seqFeild.value = "";
+})
 
 async function simulatePianoKey(chars) {
   const charArr = chars.value.split("");

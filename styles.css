@@ -12,11 +12,13 @@ body {
   justify-content: center;
   min-height: 100vh;
   background: #E3F2FD;
+  min-width: 320px;
 }
 .wrapper {
   display: flex;
   flex-direction: column;
   padding: 35px 40px;
+  margin: 0 auto;
   border-radius: 20px;
   background: #141414;
 }
@@ -170,7 +172,7 @@ header input {
   padding: 0 10px; 
 }
 
-@media screen and (max-width: 815px) {
+@media screen and (max-width: 960px) {
   .wrapper {
     padding: 25px;
   }
@@ -185,10 +187,9 @@ header input {
   }
   .piano-keys {
     margin-top: 20px;
+    flex-wrap: wrap;
   }
-  .piano-keys .key:where(:nth-child(9), :nth-child(10)) {
-    display: none;
-  }
+  
   .piano-keys .black {
     height: 100px;
     width: 40px;
@@ -198,16 +199,24 @@ header input {
     height: 180px;
     width: 60px;
   }
+  .sequence {
+    flex-direction: column;
+    row-gap: 7px;
+  }
 }
-@media screen and (max-width: 615px) {
-  .piano-keys .key:nth-child(13),
-  .piano-keys .key:nth-child(14),
-  .piano-keys .key:nth-child(15),
-  .piano-keys .key:nth-child(16),
-  .piano-keys .key :nth-child(17) {
-    display: none;
+@media screen and (max-width: 768px) {
+  .wrapper {
+    max-width: 260px;
+  }
+  .piano-keys {
+    row-gap: 10px;
+    justify-content: center;
   }
   .piano-keys .white {
     width: 50px;
+  }
+  .break {
+    flex-basis: 100%;
+    height: 0;
   }
 }
