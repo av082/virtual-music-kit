@@ -14,6 +14,8 @@ body {
   background: #E3F2FD;
 }
 .wrapper {
+  display: flex;
+  flex-direction: column;
   padding: 35px 40px;
   border-radius: 20px;
   background: #141414;
@@ -111,6 +113,11 @@ header input {
   border-radius: 0 0 5px 5px;
   background: linear-gradient(#333, #000);
 }
+.piano-keys .black:hover {
+  box-shadow: -1px 2px 21px 0px rgba(0,0,0,0.39);
+  -webkit-box-shadow: -1px 2px 21px 0px rgba(0,0,0,0.39);
+  -moz-box-shadow: -1px 2px 21px 0px rgba(0,0,0,0.39);
+}
 .piano-keys .black.active {
   box-shadow: inset -5px -10px 10px rgba(255,255,255,0.1);
   background:linear-gradient(to bottom, #000, #434343);
@@ -122,10 +129,14 @@ header input {
   border: 1px solid #000;
   background: linear-gradient(#fff 96%, #eee 4%);
 }
+.piano-keys .white:hover {
+  background: linear-gradient(#fff 96%, #9dc6f9 4%);
+}
 .piano-keys .white.active {
   box-shadow: inset -5px 5px 20px rgba(0,0,0,0.2);
-  background:linear-gradient(to bottom, #fff 0%, #eee 100%);
+  background:linear-gradient(to bottom, #eee 96%, #c3dbfb 4%);
 }
+
 .piano-keys .key span {
   position: absolute;
   bottom: 20px;
@@ -141,6 +152,24 @@ header input {
   bottom: 13px;
   color: #888888;
 }
+
+.sequence {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin: 20px 20px;
+}
+
+.sequence label {
+  color: #fff;
+  padding-right: 10px;
+}
+
+.sequence button {
+  margin-left: 10px;
+  padding: 0 10px; 
+}
+
 @media screen and (max-width: 815px) {
   .wrapper {
     padding: 25px;
