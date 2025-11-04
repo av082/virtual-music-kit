@@ -284,7 +284,10 @@ function startKeyEdit(editBtn) {
     }
 
     noteMap[newKey] = noteMap[oldKey];
+    noteBuffers[newKey] = noteBuffers[oldKey];
+    
     delete noteMap[oldKey];
+    delete noteBuffers[oldKey];
 
     keyToEdit.dataset.key = newKey;
     keyToEdit.querySelector("span").textContent = newKey.toUpperCase();
