@@ -92,6 +92,7 @@ function createElement() {
   const sequenceInput = document.createElement("input");
   sequenceInput.type = "text";
   sequenceInput.id = "seq";
+  sequenceInput.maxLength = 34;
   const sequenceBtn = document.createElement("button");
   sequenceBtn.id = "play";
   sequenceBtn.textContent = "Play";
@@ -413,3 +414,26 @@ async function playWithUserBlocked(func) {
     events.forEach(event => document.removeEventListener(event, blockHandler, { capture: true, passive: false }));
   }
 }
+
+seqFeild.addEventListener("keypress", (event) => {
+  let key = event.key;
+
+  if (!/[a-zA-Z]/.test(key)) {
+    event.preventDefault();
+    return;
+  }
+
+  if (!isAllowed(key)) {
+    event.preventDefault();
+  }
+
+  function isAllowed(letter) {
+    letter = letter.toLowerCase();
+    
+    if (noteMap[letter]) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+});
